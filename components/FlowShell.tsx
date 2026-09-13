@@ -154,7 +154,7 @@ function FlowShellInner({
   }, [bothComplete]);
 
   return (
-    <AppShell>
+    <AppShell layout="wide">
       <Card className="flex min-h-[70vh] flex-col overflow-hidden p-0">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-4 sm:p-5">
           <div>
@@ -175,7 +175,7 @@ function FlowShellInner({
           <FlowRail stage={progress.stage} onSelect={setViewStage}>
             <CliCheatSheet stage={viewStage ?? progress.stage} />
           </FlowRail>
-          <div className="flex-1 p-5 sm:p-6">
+          <div className="min-w-0 flex-1 p-5 sm:p-6">
             <AnimatePresence mode="wait">
               {hydrated && (
               <m.div
