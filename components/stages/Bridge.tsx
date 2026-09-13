@@ -89,15 +89,18 @@ export function Bridge({
       status === "wrong" ? "ring-1 ring-destructive" : status === "correct" ? "ring-1 ring-success" : "";
     return (
       <div key={c.id} data-plank-id={c.id} className={cn("rounded-lg border border-border bg-card p-3", stateRing)}>
-        <div className="flex items-start gap-3">
+        {/* Wraps rather than squeezes: the text keeps a readable minimum width and
+            the button drops to its own line when the span is narrow. */}
+        <div className="flex flex-wrap items-start gap-2 sm:gap-3">
           <Badge variant={c.material === "evidence" ? "evidence" : "reasoning"} className="mt-0.5 shrink-0 capitalize">
             {c.material}
           </Badge>
-          <div className="flex-1 text-sm leading-snug text-foreground">{c.text}</div>
+          <div className="min-w-[14rem] flex-1 text-sm leading-snug text-foreground">{c.text}</div>
           <Button
             type="button"
             variant={isPlaced ? "secondary" : "default"}
             size="sm"
+            className="ml-auto shrink-0"
             aria-label={`${isPlaced ? "Set aside" : "Build"} ${c.text}`}
             onClick={() => onToggle(c.id)}
           >
@@ -112,9 +115,11 @@ export function Bridge({
   return (
     <div>
       <BridgeScene placed={sceneBeams} testResult={testResult} />
-      <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
+      {/* Three columns only when there is real room for them; otherwise the
+          piers stack above and below the span at full width. */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
         {/* Claim pier */}
-        <div className="rounded-lg border border-border bg-muted/40 p-3 md:w-48 md:shrink-0">
+        <div className="rounded-lg border border-border bg-muted/40 p-3 lg:w-56 lg:shrink-0 xl:w-64">
           <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Claim</div>
           <div className="font-display text-sm leading-snug text-foreground">{claim}</div>
         </div>
@@ -122,7 +127,7 @@ export function Bridge({
         {/* Span / deck */}
         <div
           className={cn(
-            "flex-1 rounded-lg border-2 border-dashed p-3 transition-colors",
+            "min-w-0 flex-1 rounded-lg border-2 border-dashed p-3 transition-colors",
             held ? "border-success bg-success/5" : placed.length ? "border-border" : "border-border bg-muted/20"
           )}
         >
@@ -136,7 +141,7 @@ export function Bridge({
         </div>
 
         {/* Impact pier */}
-        <div className="rounded-lg border border-evidence bg-evidence/10 p-3 md:w-48 md:shrink-0">
+        <div className="rounded-lg border border-evidence bg-evidence/10 p-3 lg:w-56 lg:shrink-0 xl:w-64">
           <div className="text-[10px] font-semibold uppercase tracking-widest text-evidence">Impact</div>
           <div className="font-display text-sm leading-snug text-foreground">{impact}</div>
         </div>
