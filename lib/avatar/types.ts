@@ -44,6 +44,10 @@ export interface AvatarSession {
   phase: "collaborative" | "debate" | "review";
   currentRound: number;
   totalRounds: number;
+  /** Transcript index where the current round (or debate phase) began. */
+  roundStart: number;
+  /** Sparring coin flip: the avatar delivers the opening statement. */
+  avatarOpens: boolean;
   startedAt: number;
   endedAt: number | null;
 }

@@ -21,6 +21,8 @@ const SAMPLE_SESSION: AvatarSession = {
   phase: "debate",
   currentRound: 1,
   totalRounds: 3,
+  roundStart: 0,
+  avatarOpens: false,
   startedAt: 1000,
   endedAt: null,
 };

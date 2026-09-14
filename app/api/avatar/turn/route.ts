@@ -17,7 +17,11 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     const { system, user } = buildAvatarPrompt(body);
-    const history = transcriptToHistory(body.transcript ?? []);
+    const transcript = body.transcript ?? [];
+    // The prompt builder quotes the latest student line as the user message,
+    // so the history must stop before it or the model sees it twice.
+    const last = transcript[transcript.length - 1];
+    const history = transcriptToHistory(last?.speaker === "student" ? transcript.slice(0, -1) : transcript);
     const client = getChatClient({ json: false });
     const text = await client.complete({ system, user, history });
     return Response.json({ text }, { status: 200 });
