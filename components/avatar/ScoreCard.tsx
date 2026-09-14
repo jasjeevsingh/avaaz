@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { AvatarMode, RoundScore } from "@/lib/avatar/types";
+import type { AvatarMode, InlineScore, RoundScore } from "@/lib/avatar/types";
 
 const CRITERIA_LABELS: Record<string, string> = {
   claim: "Claim",
@@ -41,16 +41,39 @@ function ScoreCell({
 export function ScoreCard({
   mode,
   roundScores,
+  inlineScores = [],
+  finished = false,
   onContinue,
   onEnd,
 }: {
   mode: AvatarMode;
   roundScores: RoundScore[];
+  /** Inline badges (pushback, Mode C debate) summarised when there is no round score. */
+  inlineScores?: InlineScore[];
+  /** The session is over: offer "Done" instead of "Next round". */
+  finished?: boolean;
   onContinue: () => void;
   onEnd: () => void;
 }) {
   const latest = roundScores[roundScores.length - 1];
-  if (!latest) return null;
+  if (!latest) {
+    if (inlineScores.length === 0) return null;
+    return (
+      <div className="space-y-6 py-6">
+        <h3 className="font-display text-lg font-semibold text-foreground">
+          {mode === "pushback" ? "Pushback session" : "Session"} summary
+        </h3>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {inlineScores.map((s, i) => (
+            <ScoreCell key={i} label={CRITERIA_LABELS[s.criterion] ?? s.criterion} score={s.score} isFocus={false} rationale={s.rationale} />
+          ))}
+        </div>
+        <div className="flex gap-3">
+          <Button onClick={onEnd}>Done</Button>
+        </div>
+      </div>
+    );
+  }
 
   const argEntries = Object.entries(latest.argumentation) as [string, number][];
   const engEntries = Object.entries(latest.engagement) as [string, number][];
@@ -99,8 +122,14 @@ export function ScoreCard({
       </div>
 
       <div className="flex gap-3">
-        <Button onClick={onContinue}>Next round →</Button>
-        <Button variant="outline" onClick={onEnd}>End session</Button>
+        {finished ? (
+          <Button onClick={onEnd}>Done</Button>
+        ) : (
+          <>
+            <Button onClick={onContinue}>Next round →</Button>
+            <Button variant="outline" onClick={onEnd}>End session</Button>
+          </>
+        )}
       </div>
     </div>
   );
