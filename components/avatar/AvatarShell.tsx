@@ -1,6 +1,5 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createClient } from "@deepgram/sdk";
 import { AppShell } from "@/components/ui/app-shell";
 import { Button } from "@/components/ui/button";
 import { ModeCard } from "@/components/avatar/ModeCard";
@@ -11,11 +10,11 @@ import { getFlowMotions } from "@/lib/flowMotions";
 import { saveAvatarSession } from "@/lib/state/avatarSession";
 import { createAudioQueue } from "@/lib/helper/audioQueue";
 import { startMicCapture } from "@/lib/voice/micCapture";
+import { openAgentSocket } from "@/lib/voice/agentSocket";
 import { speakCoach, stopSpeech } from "@/lib/voice/playSpeech";
 import {
   createAvatarAgent,
   type AgentPhase,
-  type AgentSocket,
   type AvatarAgent,
   type AvatarAgentDeps,
 } from "@/lib/avatar/avatarAgent";
@@ -137,10 +136,9 @@ export function AvatarShell({
     agentRef.current?.stop();
     agentRef.current = null;
     agentLiveRef.current = false;
-    if (audioCtxRef.current) {
-      void audioCtxRef.current.close();
-      audioCtxRef.current = null;
-    }
+    const ctx = audioCtxRef.current;
+    audioCtxRef.current = null;
+    if (ctx && ctx.state !== "closed") void ctx.close().catch(() => {});
     stopSpeech();
   }, []);
 
@@ -241,7 +239,7 @@ export function AvatarShell({
         if (!res.ok) throw new Error("no token");
         return (await res.json()).access_token as string;
       },
-      createSocket: (token) => createClient(token).agent() as unknown as AgentSocket,
+      createSocket: (token) => openAgentSocket(token),
       createQueue: () => (audioCtx ? createAudioQueue(audioCtx) : { push() {}, drop() {}, close() {} }),
       onEvent: (e) => {
         if (e.type === "phase") {
@@ -296,9 +294,16 @@ export function AvatarShell({
         commit(s);
       }
     }
+    const greeting = avatarGreeting(s, opening);
+    if (!opening) {
+      // A fixed cue is context, not debate content: keep it out of the round window.
+      const { session: withGreeting } = appendTurn(s, "avatar", greeting);
+      s = { ...withGreeting, roundStart: withGreeting.transcript.length };
+      commit(s);
+    }
     setStep("session");
     setStarting(false);
-    await connect(s, avatarGreeting(s, opening));
+    await connect(s, greeting);
   }
 
   function nextRound() {

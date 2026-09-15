@@ -44,7 +44,8 @@ export function createAudioQueue(ctx: AudioContext, sampleRate = 24000) {
 
   function close(): void {
     drop();
-    void ctx.close?.();
+    // The owner may close the context too; a second close() rejects.
+    if (ctx.state !== "closed") void ctx.close?.().catch(() => {});
   }
 
   return { push, drop, close };

@@ -43,7 +43,7 @@ export function agentConfig(prompt: string) {
       output: { encoding: "linear16", sample_rate: 24000, container: "none" },
     },
     agent: {
-      language: { type: "en" },
+      language: "en",
       listen: { provider: { type: "deepgram", model: LISTEN_MODEL } },
       think: { provider: { type: "anthropic", model: THINK_MODEL }, prompt },
       speak: { provider: { type: "deepgram", model: SPEAK_MODEL } },
