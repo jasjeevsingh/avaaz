@@ -10,15 +10,19 @@ import { FeedbackPanel } from "@/components/feedback/FeedbackPanel";
 export function AppShell({
   children,
   layout = "contained",
+  headerAction,
 }: {
   children: ReactNode;
   layout?: "contained" | "wide" | "full";
+  /** Optional control rendered at the top right of the header (e.g. a tutorial link). */
+  headerAction?: ReactNode;
 }) {
   return (
     <div className="min-h-[100dvh]">
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
           <span className="font-display text-xl font-semibold text-foreground">Constructive</span>
+          {headerAction}
         </div>
       </header>
       {layout === "full" ? (

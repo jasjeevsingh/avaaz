@@ -62,6 +62,24 @@ function BridgeSilhouette() {
   );
 }
 
+export const TUTORIAL_URL = "https://www.loom.com/share/a4f9ac5bb1bc4722aa039637a49b908d";
+
+function TutorialLink() {
+  return (
+    <a
+      href={TUTORIAL_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+        <path d="M8 5v14l11-7z" />
+      </svg>
+      Watch the tutorial
+    </a>
+  );
+}
+
 export function FlowDeck() {
   const motions = getFlowMotions();
   const [active, setActive] = useState<Opened | null>(null);
@@ -137,7 +155,7 @@ export function FlowDeck() {
   }
 
   return (
-    <AppShell layout="full">
+    <AppShell layout="full" headerAction={<TutorialLink />}>
       <div className="mx-auto max-w-5xl px-4 pb-14 pt-10 sm:px-6 sm:pt-12">
         <Landing onOpenLesson={() => setShowLesson(true)} />
       </div>
