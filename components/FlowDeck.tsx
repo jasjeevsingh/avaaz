@@ -70,7 +70,7 @@ function TutorialLink() {
       href={TUTORIAL_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-sm font-semibold text-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
         <path d="M8 5v14l11-7z" />
@@ -225,7 +225,7 @@ export function FlowDeck() {
         </Button>
         <BridgeSilhouette />
         <p className="relative mt-24 text-xs text-[var(--dim)]">
-          Constructive · Claim → Link → Impact · Built for the MPLR debate retreat
+          Constructive · Claim → Link → Impact · Built for the Miri Piri Leaders Retreat
         </p>
       </SectionBand>
     </AppShell>
