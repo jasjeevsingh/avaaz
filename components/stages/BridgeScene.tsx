@@ -40,7 +40,13 @@ export function BridgeScene({
         alt=""
         width={1600}
         height={1194}
-        className={cn("mx-auto max-h-56 w-auto object-contain transition-opacity", testResult === "failed" && "opacity-80")}
+        // Full width. Small screens keep the whole picture; wider stages crop to a
+        // 3:1 banner positioned so the three labels and the deck stay in frame.
+        className={cn(
+          "block w-full object-cover object-[50%_33%] transition-opacity",
+          "aspect-[4/3] sm:aspect-[3/1]",
+          testResult === "failed" && "opacity-80",
+        )}
       />
       {testResult === "held" && (
         <div className="absolute right-3 top-3 rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground shadow">
