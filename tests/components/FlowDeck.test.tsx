@@ -132,4 +132,12 @@ describe("FlowDeck", () => {
       expect(order[i - 1].compareDocumentPosition(order[i]) & 4).toBeTruthy();
     }
   });
+
+  it("links to the video tutorial from the top right of the home page, opening in a new tab", () => {
+    render(<FlowDeck />);
+    const link = screen.getByRole("link", { name: /watch the tutorial/i });
+    expect(link).toHaveAttribute("href", "https://www.loom.com/share/a4f9ac5bb1bc4722aa039637a49b908d");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link.getAttribute("rel")).toContain("noopener");
+  });
 });
