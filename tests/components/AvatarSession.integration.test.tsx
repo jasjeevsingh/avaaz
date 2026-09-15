@@ -73,6 +73,7 @@ const mic = vi.fn(async () => ({ stop: vi.fn() }));
 async function startSparring(user: ReturnType<typeof userEvent.setup>, factory: (d: AvatarAgentDeps) => ReturnType<typeof makeFakeAgent>["agent"]) {
   render(<AvatarShell onExit={() => {}} agentFactory={factory} startMic={mic} />);
   await user.click(screen.getByRole("button", { name: /sparring/i }));
+    await user.click(screen.getByRole("button", { name: /pick a motion/i }));
   await user.click(screen.getAllByRole("button", { name: /This House/ })[0]);
   await user.click(screen.getByRole("button", { name: /argue for/i }));
   await screen.findByRole("status");
@@ -136,6 +137,7 @@ describe("Avatar live session", () => {
     const deniedMic = vi.fn(async () => { throw new Error("denied"); });
     render(<AvatarShell onExit={() => {}} agentFactory={fake.factory} startMic={deniedMic} />);
     await user.click(screen.getByRole("button", { name: /sparring/i }));
+    await user.click(screen.getByRole("button", { name: /pick a motion/i }));
     await user.click(screen.getAllByRole("button", { name: /This House/ })[0]);
     await user.click(screen.getByRole("button", { name: /argue for/i }));
     expect(await screen.findByText(/microphone unavailable/i)).toBeInTheDocument();
@@ -158,6 +160,7 @@ describe("Avatar live session", () => {
     const fake = makeFakeAgent();
     render(<AvatarShell onExit={() => {}} agentFactory={fake.factory} startMic={mic} />);
     await user.click(screen.getByRole("button", { name: /pushback/i }));
+    await user.click(screen.getByRole("button", { name: /pick a motion/i }));
     await user.click(screen.getAllByRole("button", { name: /This House/ })[0]);
     await user.click(screen.getByRole("button", { name: /argue against/i }));
     await waitFor(() => expect(fake.agent.start).toHaveBeenCalled());
@@ -176,6 +179,7 @@ describe("Avatar live session", () => {
     const fake = makeFakeAgent();
     render(<AvatarShell onExit={() => {}} agentFactory={fake.factory} startMic={mic} />);
     await user.click(screen.getByRole("button", { name: /build.*debate/i }));
+    await user.click(screen.getByRole("button", { name: /pick a motion/i }));
     await user.click(screen.getAllByRole("button", { name: /This House/ })[0]);
     await waitFor(() => expect(fake.agent.start).toHaveBeenCalled());
     expect(screen.getByText(/building your case/i)).toBeInTheDocument();
@@ -200,6 +204,7 @@ describe("Avatar live session", () => {
     const fake = makeFakeAgent();
     render(<AvatarShell onExit={() => {}} agentFactory={fake.factory} startMic={mic} />);
     await user.click(screen.getByRole("button", { name: /pushback/i }));
+    await user.click(screen.getByRole("button", { name: /pick a motion/i }));
     await user.click(screen.getAllByRole("button", { name: /This House/ })[0]);
     await user.click(screen.getByRole("button", { name: /argue for/i }));
     await waitFor(() => expect(fake.agent.start).toHaveBeenCalled());

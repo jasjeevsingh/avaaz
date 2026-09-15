@@ -37,6 +37,31 @@ const STATUS_META: Record<
 
 type Opened = { motion: FlowMotion; side: Side };
 
+/** Decorative suspension bridge in the retreat's gold, low in the navy band. */
+function BridgeSilhouette() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 1200 220"
+      preserveAspectRatio="xMidYMax slice"
+      className="pointer-events-none absolute inset-x-0 bottom-0 h-44 w-full text-[var(--gold)] opacity-25"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+    >
+      <path d="M0 160 H1200" strokeWidth="6" />
+      <path d="M300 30 V160 M900 30 V160" strokeWidth="8" />
+      <path d="M0 40 Q300 170 600 130 T1200 40" strokeWidth="4" />
+      {Array.from({ length: 23 }, (_, i) => 50 + i * 50).map((x) => {
+        const t = x / 1200;
+        const y = t < 0.5 ? 40 + (130 - 40) * Math.sin(Math.PI * t) : 130 - (130 - 40) * Math.sin(Math.PI * (t - 0.5));
+        return <path key={x} d={`M${x} ${y} V160`} strokeWidth="2" />;
+      })}
+      <path d="M0 220 L120 175 L260 200 L380 170 L520 205 L680 180 L820 210 L960 175 L1100 200 L1200 185 V220 Z" fill="currentColor" stroke="none" opacity="0.6" />
+    </svg>
+  );
+}
+
 export function FlowDeck() {
   const motions = getFlowMotions();
   const [active, setActive] = useState<Opened | null>(null);
@@ -174,11 +199,16 @@ export function FlowDeck() {
         tone="navy"
         eyebrow="Step 4 · Spar with an AI"
         title="Debate Avatar"
-        blurb="Practice debating against an AI opponent. Choose your mode: structured sparring, pushback coaching, or collaborative build + debate."
+        blurb="A live voice call with an AI opponent. Spar for three scored rounds, get your argument stress-tested question by question, or build a case together and then defend it."
+        className="relative overflow-hidden"
       >
         <Button type="button" variant="secondary" className="mt-6" onClick={() => setShowAvatar(true)}>
           Debate Avatar →
         </Button>
+        <BridgeSilhouette />
+        <p className="relative mt-24 text-xs text-[var(--dim)]">
+          Constructive · Claim → Link → Impact · Built for the MPLR debate retreat
+        </p>
       </SectionBand>
     </AppShell>
   );

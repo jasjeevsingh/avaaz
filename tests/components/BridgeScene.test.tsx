@@ -8,22 +8,23 @@ const placed = [
 ];
 
 describe("BridgeScene", () => {
-  it("renders one beam per placed plank", () => {
+  it("shows the lesson's bridge illustration, decoratively", () => {
     render(<BridgeScene placed={placed} testResult={null} />);
-    expect(screen.getAllByTestId("bridge-beam")).toHaveLength(2);
+    const scene = screen.getByTestId("bridge-scene");
+    expect(scene).toHaveAttribute("aria-hidden", "true");
+    expect(scene.querySelector("img")).toHaveAttribute("src", "/lesson/cli-bridge.jpg");
+    expect(scene).toHaveAttribute("data-planks", "2");
+    expect(screen.queryByText(/it holds/i)).toBeNull();
   });
 
-  it("is decorative (aria-hidden) and shows no beams when empty", () => {
-    render(<BridgeScene placed={[]} testResult={null} />);
-    expect(screen.getByTestId("bridge-scene")).toHaveAttribute("aria-hidden", "true");
-    expect(screen.queryAllByTestId("bridge-beam")).toHaveLength(0);
+  it("tags the picture when the bridge holds", () => {
+    render(<BridgeScene placed={placed} testResult="held" />);
+    expect(screen.getByText(/it holds/i)).toBeInTheDocument();
+    expect(screen.getByTestId("bridge-scene")).toHaveAttribute("data-result", "held");
   });
 
-  it("renders for held and failed results without crashing", () => {
-    const { rerender } = render(<BridgeScene placed={placed} testResult="held" />);
-    expect(screen.getByTestId("bridge-scene")).toBeInTheDocument();
-    rerender(<BridgeScene placed={placed} testResult="failed" />);
-    expect(screen.getByTestId("bridge-scene")).toBeInTheDocument();
-    expect(screen.getAllByTestId("bridge-beam")).toHaveLength(2);
+  it("tags the picture when the bridge fails", () => {
+    render(<BridgeScene placed={placed} testResult="failed" />);
+    expect(screen.getByText(/not yet/i)).toBeInTheDocument();
   });
 });

@@ -32,13 +32,46 @@ import type { FlowMotion } from "@/lib/schemas";
 import type { Side } from "@/lib/state/flowMachine";
 import { cn } from "@/lib/utils";
 
-const MODES: { mode: AvatarMode; title: string; description: string }[] = [
-  { mode: "sparring", title: "Sparring", description: "A real opponent. Three rounds, scored after each." },
-  { mode: "pushback", title: "Pushback Coach", description: "Stress-test one argument, question by question." },
-  { mode: "collaborative", title: "Build + Debate", description: "Build your case together, then face off." },
+const MODES: { mode: AvatarMode; title: string; description: string; how: string[]; tip: string }[] = [
+  {
+    mode: "sparring",
+    title: "Sparring",
+    description: "A real opponent. Three rounds, scored after each.",
+    how: [
+      "You pick a side; the avatar argues the other one and plays to win.",
+      "A coin flip decides who opens. Then you simply take turns talking — no buttons.",
+      "Three exchanges make a round. After each round you get a scorecard on your claims, links, impacts, and how well you engaged.",
+      "Three rounds, then a final summary with one thing to work on next.",
+    ],
+    tip: "Rebut what the avatar just said before adding your own point.",
+  },
+  {
+    mode: "pushback",
+    title: "Pushback Coach",
+    description: "Stress-test one argument, question by question.",
+    how: [
+      "State your strongest claim on the motion.",
+      "The avatar finds the weakest part — your claim, your link, or your impact — and asks one sharp question about it.",
+      "Answer, and it either moves to the next weak spot or pushes harder.",
+      "Each exchange gets a small badge showing which part got stronger. Hang up whenever you're done.",
+    ],
+    tip: "Bring a piece of evidence; the coach will ask for one.",
+  },
+  {
+    mode: "collaborative",
+    title: "Build + Debate",
+    description: "Build your case together, then face off.",
+    how: [
+      "Phase 1, Build: the avatar is on your side and helps you shape two or three complete arguments.",
+      "When you're ready, hit 'Ready to debate'.",
+      "Phase 2, Debate: the avatar switches sides and argues against the case you built together.",
+      "Two exchanges make a round; you're scored on how well you respond and go deep.",
+    ],
+    tip: "Say the parts you're unsure about out loud in Phase 1 — that's what the coach is for.",
+  },
 ];
 
-type Step = "mode" | "motion" | "side" | "session" | "transition" | "review";
+type Step = "mode" | "intro" | "motion" | "side" | "session" | "transition" | "review";
 
 // Cost guards, same shape as the voice helper.
 const KEEP_ALIVE_MS = 5_000;
@@ -368,9 +401,39 @@ export function AvatarShell({
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {MODES.map((m, i) => (
-            <ModeCard key={m.mode} title={m.title} description={m.description} index={i} onClick={() => { setSelectedMode(m.mode); setStep("motion"); }} />
+            <ModeCard key={m.mode} title={m.title} description={m.description} index={i} onClick={() => { setSelectedMode(m.mode); setStep("intro"); }} />
           ))}
         </div>
+      </AppShell>
+    );
+  }
+
+  if (step === "intro" && selectedMode) {
+    const m = MODES.find((x) => x.mode === selectedMode)!;
+    return (
+      <AppShell>
+        <Button variant="ghost" className="mb-4 text-muted-foreground" onClick={() => setStep("mode")}>← Back</Button>
+        <div className="text-xs font-semibold uppercase tracking-wide text-primary">How this mode works</div>
+        <h2 className="mt-1 font-display text-3xl font-semibold text-foreground">{m.title}</h2>
+        <p className="mt-2 max-w-2xl text-muted-foreground">{m.description}</p>
+        <ol className="mt-6 max-w-2xl space-y-3">
+          {m.how.map((line, i) => (
+            <li key={i} className="flex gap-3 text-sm text-foreground">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                {i + 1}
+              </span>
+              <span className="leading-relaxed">{line}</span>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-6 max-w-2xl rounded-xl border border-evidence/40 bg-evidence/10 p-4 text-sm">
+          <span className="font-semibold text-foreground">Tip: </span>
+          <span className="text-muted-foreground">{m.tip}</span>
+        </div>
+        <p className="mt-6 text-sm text-muted-foreground">
+          It&apos;s a live voice call: just talk, and interrupt whenever you like. You can type instead at any point.
+        </p>
+        <Button className="mt-4" onClick={() => setStep("motion")}>Pick a motion →</Button>
       </AppShell>
     );
   }
@@ -378,7 +441,7 @@ export function AvatarShell({
   if (step === "motion") {
     return (
       <AppShell>
-        <Button variant="ghost" className="mb-4 text-muted-foreground" onClick={() => setStep("mode")}>← Back</Button>
+        <Button variant="ghost" className="mb-4 text-muted-foreground" onClick={() => setStep("intro")}>← Back</Button>
         <h2 className="font-display text-2xl font-semibold text-foreground">Pick a motion</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {motions.map((m) => (
@@ -455,21 +518,50 @@ export function AvatarShell({
           ? session.phase === "collaborative" ? "Building your case" : "Debating"
           : "";
     const lastAvatarText = [...session.transcript].reverse().find((t) => t.speaker === "avatar")?.text;
+    const lastStudentText = [...session.transcript].reverse().find((t) => t.speaker === "student")?.text;
     const studentActive = phase === "listening" && !muted;
     const avatarActive = phase === "speaking" || phase === "thinking";
+    const building = session.mode === "collaborative" && session.phase === "collaborative";
 
     return (
-      <div className="fixed inset-0 z-30 flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
+      <div
+        data-phase={building ? "build" : "debate"}
+        className={cn(
+          "fixed inset-0 z-30 flex flex-col text-white",
+          building
+            ? "bg-gradient-to-b from-emerald-950 via-teal-950 to-gray-950"
+            : "bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950",
+        )}
+      >
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm font-medium text-white/60">
             {modeLabel}
-            {roundLabel && <span className="ml-2 text-white/40">{roundLabel}</span>}
+            {roundLabel && (
+              <span
+                className={cn(
+                  "ml-2 rounded-full px-2 py-0.5 text-xs font-semibold",
+                  building ? "bg-emerald-400/20 text-emerald-200" : "bg-white/10 text-white/60",
+                )}
+              >
+                {roundLabel}
+              </span>
+            )}
           </div>
           <TranscriptPane transcript={session.transcript} inlineScores={session.inlineScores} />
         </div>
 
-        <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6">
+        <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
           <p className="max-w-lg text-center text-sm font-medium leading-relaxed text-white/50">{session.motionText}</p>
+          {building && (
+            <p className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200">
+              Phase 1 · Building together — the avatar is on your side
+            </p>
+          )}
+          {session.mode === "collaborative" && !building && (
+            <p className="rounded-full border border-red-300/30 bg-red-400/10 px-3 py-1 text-xs font-medium text-red-200">
+              Phase 2 · Debate — the avatar has switched sides
+            </p>
+          )}
 
           <div className="flex items-center gap-12">
             <div className="flex flex-col items-center gap-3">
@@ -487,7 +579,9 @@ export function AvatarShell({
               </span>
             </div>
 
-            <div className="text-2xl font-light text-white/20">{session.avatarSide === session.studentSide ? "+" : "vs"}</div>
+            <div className={cn("text-2xl font-light", building ? "text-emerald-300/60" : "text-white/20")}>
+              {building ? "+" : "vs"}
+            </div>
 
             <div className="flex flex-col items-center gap-3">
               <div
@@ -508,10 +602,24 @@ export function AvatarShell({
             </div>
           </div>
 
-          {lastAvatarText && (
-            <p data-testid="last-avatar-line" className="max-w-md text-center text-sm leading-relaxed text-white/40">
-              &ldquo;{lastAvatarText.length > 160 ? lastAvatarText.slice(0, 160) + "…" : lastAvatarText}&rdquo;
-            </p>
+          {(lastStudentText || lastAvatarText) && (
+            <div className="w-full max-w-xl space-y-2">
+              {lastStudentText && (
+                <div className="rounded-xl bg-emerald-500/10 px-4 py-2.5 text-sm leading-relaxed text-white/70">
+                  <span className="mr-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-300/70">You</span>
+                  {lastStudentText}
+                </div>
+              )}
+              {lastAvatarText && (
+                <div
+                  data-testid="last-avatar-line"
+                  className="max-h-40 overflow-y-auto rounded-xl bg-blue-500/10 px-4 py-2.5 text-sm leading-relaxed text-white/90"
+                >
+                  <span className="mr-2 text-[10px] font-semibold uppercase tracking-wide text-blue-300/70">Avatar</span>
+                  {lastAvatarText}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
