@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { createClient } from "@deepgram/sdk";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CoachBubble } from "@/components/CoachBubble";
@@ -13,7 +12,8 @@ import {
   type HelperReplyTurn,
   type HelperState,
 } from "@/lib/helper/agentMachine";
-import { createAgentSession, type AgentSocket } from "@/lib/helper/agentSession";
+import { createAgentSession } from "@/lib/helper/agentSession";
+import { openAgentSocket } from "@/lib/voice/agentSocket";
 import { createAudioQueue } from "@/lib/helper/audioQueue";
 import { helperSendGuard } from "@/lib/helper/limits";
 import { riseIn, transitions } from "@/lib/motion";
@@ -392,7 +392,7 @@ export function HelperPanel() {
         if (!res.ok) throw new Error("no token");
         return (await res.json()).access_token as string;
       },
-      createSocket: (token) => createClient(token).agent() as unknown as AgentSocket,
+      createSocket: (token) => openAgentSocket(token),
       createQueue: () => createAudioQueue(outputAudioContext),
       onState: (next) => {
         setCallState(next);

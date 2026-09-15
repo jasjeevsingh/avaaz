@@ -49,7 +49,7 @@ export function avatarAgentConfig(prompt: string, greeting?: string) {
       output: { encoding: "linear16", sample_rate: 24000, container: "none" },
     },
     agent: {
-      language: { type: "en" },
+      language: "en",
       listen: { provider: { type: "deepgram", model: LISTEN_MODEL } },
       think: { provider: { type: "anthropic", model: THINK_MODEL }, prompt },
       speak: { provider: { type: "deepgram", model: SPEAK_MODEL } },
@@ -144,14 +144,26 @@ export function createAvatarAgent(deps: AvatarAgentDeps) {
       queue?.push(p as ArrayBuffer);
       phase("speaking");
     });
-    s.on("Close", guard(() => phase("idle")));
+    s.on("Close", (p) => {
+      if (mine !== sessionId) return;
+      const ev = p as { code?: number; reason?: string } | undefined;
+      if (ev && (ev.code !== undefined || ev.reason)) console.warn("[avatar] agent socket closed", ev.code, ev.reason);
+      phase("idle");
+    });
     s.on("Error", (p) => {
       if (mine !== sessionId) return;
-      const e = p as { message?: string };
-      emit({ type: "error", message: e?.message ?? "The debate avatar hit a problem." });
+      const e = p as { message?: string; description?: string; code?: string };
+      // The raw payload is worth having in the console when a call fails;
+      // it never carries the token.
+      console.error("[avatar] agent error", p);
+      const detail = e?.message ?? e?.description ?? (e?.code ? `code ${e.code}` : null);
+      emit({ type: "error", message: detail ? `The debate avatar hit a problem: ${detail}` : "The debate avatar hit a problem." });
       phase("error");
     });
 
+    // Deepgram echoes the greeting back as ConversationText; the caller
+    // already recorded a generated opening, so treat it like an injected line.
+    lastInjected = greeting?.trim() ?? null;
     s.configure(avatarAgentConfig(prompt, greeting));
   }
 

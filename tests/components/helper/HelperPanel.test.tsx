@@ -23,6 +23,7 @@ const { fakeSockets, makeFakeSocket } = vi.hoisted(() => {
       updatePrompt: () => {},
       send: () => {},
       keepAlive: () => {},
+      injectAgentMessage: () => {},
       requestClose: () => {},
       fire: (event: string, payload?: unknown) => handlers.get(event)?.(payload),
     };
@@ -30,14 +31,12 @@ const { fakeSockets, makeFakeSocket } = vi.hoisted(() => {
   return { fakeSockets, makeFakeSocket };
 });
 
-vi.mock("@deepgram/sdk", () => ({
-  createClient: () => ({
-    agent: () => {
-      const socket = makeFakeSocket();
-      fakeSockets.push(socket);
-      return socket;
-    },
-  }),
+vi.mock("@/lib/voice/agentSocket", () => ({
+  openAgentSocket: () => {
+    const socket = makeFakeSocket();
+    fakeSockets.push(socket);
+    return socket;
+  },
 }));
 
 function renderView(overrides: Partial<React.ComponentProps<typeof HelperPanelView>> = {}) {
