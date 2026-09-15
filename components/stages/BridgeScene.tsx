@@ -1,24 +1,17 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react";
-import { transitions } from "@/lib/motion";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-type SceneMaterial = "evidence" | "reasoning";
+export type SceneMaterial = "evidence" | "reasoning";
 
-/** Minimal inline traveler — a swappable placeholder for the later mascot system. */
-function Traveler() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden>
-      <circle cx="10" cy="5" r="3" className="fill-primary" />
-      <rect x="6.5" y="8" width="7" height="9" rx="2.5" className="fill-primary" />
-    </svg>
-  );
-}
-
-function Pier() {
-  return <div className="h-16 w-7 shrink-0 self-end rounded-t bg-muted-foreground/25" />;
-}
-
+/**
+ * The bridge illustration from the lesson, sitting above the Link stage so
+ * the metaphor stays consistent through the tool. The placed planks are
+ * listed in the span below it; here the picture just reacts to the test:
+ * a green frame and a "holds" tag when the bridge stands, a shake when it
+ * doesn't. (Testers found the previous abstract beam bar unreadable.)
+ */
 export function BridgeScene({
   placed,
   testResult,
@@ -27,79 +20,38 @@ export function BridgeScene({
   testResult: "held" | "failed" | null;
 }) {
   const reduced = useReducedMotion() ?? false;
-
-  const travelerState =
-    testResult === "held" ? "crossed" : testResult === "failed" ? "stopped" : "idle";
-
-  const travelerAnim =
-    travelerState === "crossed"
-      ? { left: "88%" }
-      : travelerState === "stopped"
-        ? { left: reduced ? "30%" : ["0%", "35%", "30%"] }
-        : { left: "0%" };
-
-  const travelerTransition: Transition = reduced
-    ? { duration: 0 }
-    : travelerState === "crossed"
-      ? { duration: 0.9, ease: "easeInOut" }
-      : travelerState === "stopped"
-        ? { duration: 0.6, ease: "easeInOut" }
-        : transitions.gentle;
-
-  const deckWobble = testResult === "failed" && !reduced;
+  const shake = testResult === "failed" && !reduced;
 
   return (
-    <div
+    <motion.figure
       aria-hidden
       data-testid="bridge-scene"
-      className="mb-4 overflow-hidden rounded-xl border border-border bg-gradient-to-b from-primary/5 to-background p-4"
+      data-planks={placed.length}
+      data-result={testResult ?? undefined}
+      className={cn(
+        "relative mb-4 overflow-hidden rounded-xl border bg-[#F6F0E3] transition-colors",
+        testResult === "held" ? "border-success ring-2 ring-success/40" : "border-border",
+      )}
+      animate={shake ? { x: [0, -5, 5, -4, 4, 0] } : { x: 0 }}
+      transition={shake ? { duration: 0.5, delay: 0.3 } : { duration: 0 }}
     >
-      <div className="flex h-24 items-end gap-1">
-        <Pier />
-        <div className="relative flex-1 self-center">
-          {/* traveler track, just above the deck */}
-          <motion.div
-            className="absolute -top-5 z-10"
-            initial={false}
-            animate={travelerAnim}
-            transition={travelerTransition}
-          >
-            <Traveler />
-          </motion.div>
-
-          {/* deck */}
-          <motion.div
-            className={cn(
-              "flex min-h-[16px] items-center justify-center gap-1 rounded-md p-1 transition-colors",
-              testResult === "held" && "bg-success/10 ring-1 ring-success"
-            )}
-            animate={deckWobble ? { x: [0, -4, 4, -3, 3, 0] } : { x: 0 }}
-            transition={deckWobble ? { duration: 0.5, delay: 0.5 } : { duration: 0 }}
-          >
-            {placed.length === 0 ? (
-              <div className="h-2 w-2/3 rounded border-2 border-dashed border-border/60" />
-            ) : (
-              <AnimatePresence initial={false}>
-                {placed.map((p) => (
-                  <motion.div
-                    key={p.id}
-                    data-testid="bridge-beam"
-                    className={cn(
-                      "h-3 w-8 rounded-sm",
-                      p.material === "evidence" ? "bg-evidence" : "bg-reasoning"
-                    )}
-                    initial={reduced ? false : { y: -24, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={reduced ? { opacity: 0 } : { y: 24, opacity: 0 }}
-                    transition={reduced ? { duration: 0 } : transitions.spring}
-                  />
-                ))}
-              </AnimatePresence>
-            )}
-          </motion.div>
+      <img
+        src="/lesson/cli-bridge.jpg"
+        alt=""
+        width={1600}
+        height={1194}
+        className={cn("mx-auto max-h-56 w-auto object-contain transition-opacity", testResult === "failed" && "opacity-80")}
+      />
+      {testResult === "held" && (
+        <div className="absolute right-3 top-3 rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground shadow">
+          ✓ It holds
         </div>
-        <Pier />
-      </div>
-    </div>
+      )}
+      {testResult === "failed" && (
+        <div className="absolute right-3 top-3 rounded-full bg-reasoning px-3 py-1 text-xs font-semibold text-reasoning-foreground shadow">
+          ✗ Not yet
+        </div>
+      )}
+    </motion.figure>
   );
 }

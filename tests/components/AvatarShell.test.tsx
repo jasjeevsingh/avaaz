@@ -16,15 +16,26 @@ describe("AvatarShell", () => {
     expect(screen.getByRole("button", { name: /build.*debate/i })).toBeInTheDocument();
   });
 
-  it("shows motion picker after selecting a mode", async () => {
+  it("explains the mode after selecting it, then shows the motion picker", async () => {
     render(<AvatarShell onExit={() => {}} />);
     await userEvent.click(screen.getByRole("button", { name: /sparring/i }));
-    expect(screen.getByText(/pick a motion/i)).toBeInTheDocument();
+    expect(screen.getByText(/how this mode works/i)).toBeInTheDocument();
+    expect(screen.getByText(/coin flip decides who opens/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /pick a motion/i }));
+    expect(screen.getByRole("heading", { name: /pick a motion/i })).toBeInTheDocument();
+  });
+
+  it("describes each mode's phases in its intro", async () => {
+    render(<AvatarShell onExit={() => {}} />);
+    await userEvent.click(screen.getByRole("button", { name: /build.*debate/i }));
+    expect(screen.getByText(/phase 1, build/i)).toBeInTheDocument();
+    expect(screen.getByText(/phase 2, debate/i)).toBeInTheDocument();
   });
 
   it("shows side picker after selecting a motion in sparring mode", async () => {
     render(<AvatarShell onExit={() => {}} />);
     await userEvent.click(screen.getByRole("button", { name: /sparring/i }));
+    await userEvent.click(screen.getByRole("button", { name: /pick a motion/i }));
     const motionButtons = screen.getAllByRole("button", { name: /This House/ });
     await userEvent.click(motionButtons[0]);
     expect(screen.getByText(/which side/i)).toBeInTheDocument();

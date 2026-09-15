@@ -29,13 +29,13 @@ const PART_TONE: Record<CliPart, string> = {
 function MiniBridge({ current }: { current: FlowStage }) {
   const lit = (p: CliPart) => (p === current ? "opacity-100" : "opacity-35");
   return (
-    <div aria-hidden className="mt-2 flex h-8 items-end gap-0.5">
-      <div className={cn("h-6 w-1/4 rounded-tl-md bg-foreground", lit("claim"))} />
+    <div aria-hidden className="mt-3 flex h-10 items-end gap-0.5">
+      <div className={cn("h-8 w-1/4 rounded-tl-md bg-foreground", lit("claim"))} />
       <div className="flex h-full w-1/2 flex-col justify-end">
-        <div className={cn("h-1.5 rounded-sm bg-reasoning", lit("link"))} />
-        <div className={cn("mt-0.5 h-2 rounded-sm bg-evidence", lit("link"))} />
+        <div className={cn("h-2 rounded-sm bg-reasoning", lit("link"))} />
+        <div className={cn("mt-0.5 h-2.5 rounded-sm bg-evidence", lit("link"))} />
       </div>
-      <div className={cn("h-5 w-1/4 rounded-tr-md bg-success", lit("impact"))} />
+      <div className={cn("h-7 w-1/4 rounded-tr-md bg-success", lit("impact"))} />
     </div>
   );
 }
@@ -44,7 +44,7 @@ function CliTab({ stage }: { stage: FlowStage }) {
   return (
     <>
       <MiniBridge current={stage} />
-      <dl className="mt-2 space-y-2">
+      <dl className="mt-3 space-y-3">
         {CLI_PARTS.map((part) => {
           const d = CLI_DEFINITIONS[part];
           const current = part === stage;
@@ -52,16 +52,19 @@ function CliTab({ stage }: { stage: FlowStage }) {
             <div
               key={part}
               data-testid={current ? "cheatsheet-current" : undefined}
-              className={cn("rounded-md border-l-2 pl-2", current ? "border-primary" : "border-transparent")}
+              className={cn(
+                "rounded-md border-l-2 py-1 pl-2.5",
+                current ? "border-primary bg-white/70" : "border-transparent",
+              )}
             >
-              <dt className="flex items-center gap-1.5 text-xs">
+              <dt className="flex items-center gap-1.5 text-sm">
                 <span className={cn("h-2 w-2 rounded-full", PART_TONE[part])} aria-hidden />
                 <span className={cn("font-semibold", current ? "text-foreground" : "text-muted-foreground")}>
                   {d.label}
                 </span>
                 <span className="text-muted-foreground">{d.tag}</span>
               </dt>
-              <dd className={cn("mt-0.5 text-xs leading-snug", current ? "text-foreground" : "text-muted-foreground")}>
+              <dd className={cn("mt-0.5 text-sm leading-snug", current ? "text-foreground" : "text-muted-foreground")}>
                 {d.definition}
               </dd>
             </div>
@@ -129,7 +132,7 @@ export function CliCheatSheet({ stage, className }: { stage: FlowStage; classNam
       onClick={() => setTab(id)}
       className={cn(
         "rounded-md px-2 py-1 text-xs font-semibold",
-        tab === id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+        tab === id ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
       )}
     >
       {label}
@@ -137,19 +140,32 @@ export function CliCheatSheet({ stage, className }: { stage: FlowStage; classNam
   );
 
   return (
-    <section data-testid="cli-cheatsheet" className={cn("rounded-lg border border-border bg-muted/30", className)}>
+    <section
+      data-testid="cli-cheatsheet"
+      data-open={open}
+      className={cn(
+        "rounded-xl border transition-colors",
+        open ? "border-primary/30 bg-[#E3EBF7] shadow-sm" : "border-border bg-muted/30",
+        className,
+      )}
+    >
       <button
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        className="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
+        className={cn(
+          "flex w-full items-center justify-between px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide",
+          open ? "text-primary" : "text-muted-foreground hover:text-foreground",
+        )}
       >
-        <span>Quick reference</span>
+        <span className="flex items-center gap-2">
+          <span aria-hidden>📖</span> Quick reference
+        </span>
         <span aria-hidden>{open ? "−" : "+"}</span>
       </button>
       {open && (
-        <div className="px-3 pb-3">
-          <div role="tablist" aria-label="Quick reference sections" className="flex gap-1 rounded-md bg-muted p-0.5">
+        <div className="min-h-[22rem] px-4 pb-4">
+          <div role="tablist" aria-label="Quick reference sections" className="flex gap-1 rounded-md bg-white/60 p-0.5">
             {tabButton("cli", "Claim · Link · Impact")}
             {tabButton("fallacies", "Fallacies")}
           </div>
