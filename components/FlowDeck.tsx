@@ -225,7 +225,7 @@ export function FlowDeck() {
         </Button>
         <BridgeSilhouette />
         <p className="relative mt-24 text-xs text-[var(--dim)]">
-          Constructive · Claim → Link → Impact · Built for the Miri Piri Leaders Retreat
+          Avaaz · Claim → Link → Impact · Built for the Miri Piri Leaders Retreat
         </p>
       </SectionBand>
     </AppShell>

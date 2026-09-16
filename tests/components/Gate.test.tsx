@@ -10,7 +10,7 @@ beforeEach(() => {
 describe("Gate", () => {
   it("renders the branded gate with a labelled password field and Enter button", () => {
     render(<Gate />);
-    expect(screen.getByRole("heading", { name: "Constructive" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Avaaz" })).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toHaveAttribute("type", "password");
     expect(screen.getByRole("button", { name: /enter/i })).toBeInTheDocument();
   });
