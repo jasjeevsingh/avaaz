@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import type { ReactNode } from "react";
 import { FeedbackPanel } from "@/components/feedback/FeedbackPanel";
 
@@ -21,7 +22,14 @@ export function AppShell({
     <div className="min-h-[100dvh]">
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-          <span className="font-display text-xl font-semibold text-foreground">Avaaz</span>
+          <span className="flex items-center gap-2">
+            <img
+              src="/logo/miri-piri-lion.png"
+              alt="Miri Piri Leaders"
+              className="h-7 w-auto sm:h-8"
+            />
+            <span className="font-display text-xl font-semibold text-foreground">Avaaz</span>
+          </span>
           {headerAction}
         </div>
       </header>
