@@ -33,7 +33,7 @@ export function Gate() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle asChild className="text-3xl">
-            <h1>Constructive</h1>
+            <h1>Avaaz</h1>
           </CardTitle>
           <CardDescription>Enter the password from your retreat packet.</CardDescription>
         </CardHeader>

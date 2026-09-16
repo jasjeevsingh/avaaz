@@ -17,7 +17,7 @@ const sans = DM_Sans({
 });
 
 export const metadata = {
-  title: "Constructive",
+  title: "Avaaz",
   description: "Learn to build an argument — claim, link, and impact.",
 };
 

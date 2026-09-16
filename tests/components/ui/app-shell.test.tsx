@@ -9,7 +9,7 @@ afterEach(() => {
 describe("AppShell", () => {
   it("renders the wordmark header and its children", () => {
     render(<AppShell><p>page body</p></AppShell>);
-    expect(screen.getByText("Constructive")).toBeInTheDocument();
+    expect(screen.getByText("Avaaz")).toBeInTheDocument();
     expect(screen.getByText("page body")).toBeInTheDocument();
   });
 
